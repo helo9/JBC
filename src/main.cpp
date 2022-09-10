@@ -12,7 +12,8 @@ void set_heater2(bool on);
 const BoardAPI api = {
     get_temperature_celsius,
     set_heater1,
-    set_heater2
+    set_heater2,
+    millis
 };
 
 void setup() {
