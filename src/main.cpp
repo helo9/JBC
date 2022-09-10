@@ -1,5 +1,9 @@
 #include <Application.hpp>
+#if defined(ARDUINO)
 #include <Arduino.h>
+#else
+#include <ArduinoSim.hpp>
+#endif
 
 static constexpr int heater1_pin = 0;
 static constexpr int heater2_pin = 1;
@@ -33,7 +37,8 @@ float get_temperature_celsius() {
 
 void set_heater1(bool on) {
     digitalWrite(heater1_pin, (int)on);
-};
+}
+
 void set_heater2(bool on) {
     digitalWrite(heater2_pin, (int)on);
-};
+}
