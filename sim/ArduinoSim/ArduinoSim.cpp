@@ -1,3 +1,4 @@
+#include "ArduinoSim.hpp"
 #include <chrono>
 #include <map>
 #include <stdio.h>
@@ -48,12 +49,26 @@ void digitalWrite(int pin, int value) {
     digital_pin_values[pin] = value;
 }
 
+void SimSerial::begin(int baud) {};
+
+
+void SimSerial::print(const char str[]) {
+    printf(str);
+}
+
+void SimSerial::println(const char str[]) {
+    printf("%s\n", str);
+}
+
+SimSerial Serial;
+
 // Forward declared Arduino main functions
 void setup();
 void loop();
 
 int main() {
 
+    // Run millis to initialize it
     millis();
 
     printf("SIM: Running setup\n");

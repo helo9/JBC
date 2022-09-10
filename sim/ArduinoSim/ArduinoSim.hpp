@@ -1,3 +1,6 @@
+#ifndef ARDUINO_SIM_HPP
+#define ARDUINO_SIM_HPP
+
 #define OUTPUT 1
 
 enum AnalogPins {
@@ -18,3 +21,17 @@ void analogWrite(int pin, int value);
 
 int digitalRead(int pin);
 void digitalWrite(int pin, int value);
+
+class SimSerial {
+public:
+    void begin(int baud);
+
+    void print(const char str[]);
+    void println(const char str[]);
+
+    operator bool() const;
+};
+
+extern SimSerial Serial;
+
+#endif // ARDUINO_SIM_HPP

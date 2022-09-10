@@ -6,6 +6,7 @@ struct BoardAPI {
     void (*set_heater1)(bool on);
     void (*set_heater2)(bool on);
     unsigned long (*get_millis)();
+    void (*print)(const char str[]);
 };
 
 void application_setup(const BoardAPI *api);

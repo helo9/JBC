@@ -22,6 +22,8 @@ void application_loop() {
     timer.update(now_ms);
     
     if (timer.is_expired()) {
+
+        _api->print("run regulation\n");
         
         timer.reset_expired();
 
