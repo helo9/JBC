@@ -50,11 +50,34 @@ void test_putget() {
     }
 }
 
+void test_overwrite() {
+    static constexpr size_t ringbuffer_size = 5;
+    static constexpr int dummy_value = 2, 
+        dummy_overwrite_value = 4;
+    
+    RingBuffer<int, ringbuffer_size> ringbuffer;
+
+    for (size_t i=0; i<ringbuffer_size; i++) {
+        ringbuffer.put(dummy_value);
+    }
+
+    for (size_t i=0; i<ringbuffer_size; i++) {
+        ringbuffer.force_put(dummy_overwrite_value);
+    }
+
+    int tmp;
+    while (ringbuffer.get(&tmp)) {
+        TEST_ASSERT_EQUAL(dummy_overwrite_value, tmp);
+        break;
+    }
+}
+
 int main() {
     UNITY_BEGIN();
 
     RUN_TEST(test_MiniRingBuffer);
     RUN_TEST(test_putget);
+    RUN_TEST(test_overwrite);
 
     UNITY_END();
 }

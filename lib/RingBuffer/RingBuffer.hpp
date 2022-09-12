@@ -21,6 +21,23 @@ public:
         }
     };
 
+    void force_put(const element_type element) {
+        _buffer[_write_index] = element;
+
+        _write_index++;
+
+        if (_write_index == N+1) {
+            _write_index = 0U;
+        }
+        if (_write_index == _read_index) {
+            _read_index++;
+
+            if (_read_index == N+1) {
+                _read_index = 0U;
+            }
+        }
+    }
+
     bool get(element_type *element) {
         if (_write_index == _read_index) {
             return false;
