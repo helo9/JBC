@@ -72,9 +72,13 @@ int main() {
     millis();
 
     printf("SIM: Running setup\n");
+    
+    sim_setup();
     setup();
+    
 
     while (true) {
+        sim_loop();
         loop();
     }
     

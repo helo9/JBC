@@ -34,4 +34,7 @@ public:
 
 extern SimSerial Serial;
 
+void sim_setup();
+void sim_loop();
+
 #endif // ARDUINO_SIM_HPP
