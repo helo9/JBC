@@ -7,10 +7,6 @@ from functools import partial
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib
 
-class AnalogPins(IntEnum):
-    A0 = 50
-    A1 = 51
-
 def main():
     context = zmq.Context()
     socket = context.socket(zmq.REQ)
@@ -21,7 +17,7 @@ def main():
     handler = Handler(simcon)
 
     builder = Gtk.Builder()
-    builder.add_from_file("sim/ArduinoSim/SimGui.glade")
+    builder.add_from_file("sim/Sim/SimGui.glade")
     builder.connect_signals(handler)
 
     window = builder.get_object("main_window")
@@ -40,7 +36,6 @@ def main():
         heater_button2=heater2,
         get_values=simcon.read_heaters
     )
-
 
     GLib.timeout_add(250, updateHeatersFun)
     Gtk.main()
@@ -73,15 +68,15 @@ class Connector:
         self.socket = socket
 
     def write_temperature(self, temperature: float):
-        msg = struct.pack("!cci", b"W", bytes([AnalogPins.A0]), int(temperature))
+        msg = struct.pack("!cci", b"T", b"W", int(temperature))
         self.socket.send(msg)
-        self.socket.recv()
 
     def read_heaters(self):   
-        msg = struct.pack("!cc", b"R", bytes([0]))
+        msg = struct.pack("!cc", b"A", b"R")
         self.socket.send(msg)
-        heater1_on = self.socket.recv()[-1] > 0
-        msg = struct.pack("!cc", b"R", bytes([1]))
+        msg = self.socket.recv()
+        heater1_on = msg[-1] > 0
+        msg = struct.pack("!cc", b"B", b"R")
         self.socket.send(msg)
         heater2_on = self.socket.recv()[-1] > 0
 

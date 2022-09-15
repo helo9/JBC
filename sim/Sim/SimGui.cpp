@@ -1,4 +1,4 @@
-#include "ArduinoSim.hpp"
+#include "Sim.hpp"
 
 #ifdef SIMGUI
 
@@ -22,22 +22,6 @@ zmq::socket_t rep(context, ZMQ_REP);
 std::vector<zmq::pollitem_t> items = {
     { rep, 0, ZMQ_POLLIN, 0 },
 };
-
-static int readPin(int pin) {
-    if (pin < A0) {
-        return digitalRead(pin);
-    } else {
-        return analogRead(pin);
-    }
-}
-
-static void writePin(int pin, int value) {
-    if (pin < A0) {
-        digitalWrite(pin, value);
-    } else {
-        analogWrite(pin, value);
-    }
-}
 
 static zmq::message_t build_accept_reply () {
     return zmq::message_t ("S", 1);
@@ -73,7 +57,7 @@ void sim_setup() {
     rep.bind(bind_addr);
 }
 
-void sim_loop() {
+void sim_loop(float &temperature, const bool heater1_on, const bool heater2_on) {
     zmq::message_t msg;
     zmq::poll (items, timeout);
 
@@ -87,27 +71,36 @@ void sim_loop() {
         const auto n = res.value();
         const auto *raw_data = msg.data<char>();
 
-        const char opcode = raw_data[0];
-        const int pin = static_cast<int>(raw_data[1]);
-
+        const char field = raw_data[0];
+        const char opcode = raw_data[1];
+        
         if (opcode == 'W') {
 
-            if ( (sizeof(raw_data) - mininmal_message_length ) < 4) {
-            
-                rep.send(build_failure_reply(), zmq::send_flags::dontwait);
-            
-            } else {
-                
+            switch (field) {
+            case 'T': {
                 int value = get_value(&raw_data[2]);
-                writePin(pin, value);
+                temperature = static_cast<float>(value);
+                printf("Set new temp %f\n", temperature);
                 rep.send(build_accept_reply(), zmq::send_flags::dontwait);
-            
-            }
-        
+            } break;
+            default:
+                rep.send(build_failure_reply(), zmq::send_flags::dontwait);
+                break;
+            }        
         } else if (opcode == 'R') {
-        
-            const int value = readPin(pin);
-            rep.send(build_value_reply(value), zmq::send_flags::dontwait);
+            switch (field) {
+                case 'A': {
+                    auto msg = build_value_reply(static_cast<int>(heater1_on));
+                    rep.send(msg, zmq::send_flags::dontwait);
+                } break;
+                case 'B': {
+                    auto msg = build_value_reply(static_cast<int>(heater2_on));
+                    rep.send(msg, zmq::send_flags::dontwait);
+                } break;
+                default:
+                    rep.send(build_failure_reply(), zmq::send_flags::dontwait);
+                    break;
+            }
         
         } else {
         
@@ -120,6 +113,6 @@ void sim_loop() {
 #else
 
 void sim_setup() {};
-void sim_loop() {};
+void sim_loop(float &temperature, const bool heater1_on, const bool heater2_on) {};
 
 #endif // SIMGUI
