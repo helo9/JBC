@@ -1,16 +1,17 @@
 #ifndef BSP_HPP
 #define BSP_HPP
 
-struct BoardAPI {
-    float (*get_temperature_celsius)();
-    void (*set_heater1)(bool on);
-    void (*set_heater2)(bool on);
-    unsigned long (*get_millis)();
-    void (*print)(const char str[]);
-};
+namespace board {
 
-void board_setup();
+void setup();
 
-extern const BoardAPI board_api;
+float get_temperature_celsius();
+void set_heater1(bool on);
+void set_heater2(bool on);
+void print(const char str[]);
+
+unsigned long millis();
+
+}
 
 #endif // BSP_HPP

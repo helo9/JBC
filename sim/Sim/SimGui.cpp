@@ -57,7 +57,7 @@ void sim_setup() {
     rep.bind(bind_addr);
 }
 
-void sim_loop(float &temperature, const bool heater1_on, const bool heater2_on) {
+void sim_loop(SimState &state) {
     zmq::message_t msg;
     zmq::poll (items, timeout);
 
@@ -79,8 +79,8 @@ void sim_loop(float &temperature, const bool heater1_on, const bool heater2_on) 
             switch (field) {
             case 'T': {
                 int value = get_value(&raw_data[2]);
-                temperature = static_cast<float>(value);
-                printf("Set new temp %f\n", temperature);
+                state.temperature = static_cast<float>(value);
+                printf("Set new temp %f\n", state.temperature);
                 rep.send(build_accept_reply(), zmq::send_flags::dontwait);
             } break;
             default:
@@ -90,11 +90,11 @@ void sim_loop(float &temperature, const bool heater1_on, const bool heater2_on) 
         } else if (opcode == 'R') {
             switch (field) {
                 case 'A': {
-                    auto msg = build_value_reply(static_cast<int>(heater1_on));
+                    auto msg = build_value_reply(static_cast<int>(state.heater1_on));
                     rep.send(msg, zmq::send_flags::dontwait);
                 } break;
                 case 'B': {
-                    auto msg = build_value_reply(static_cast<int>(heater2_on));
+                    auto msg = build_value_reply(static_cast<int>(state.heater2_on));
                     rep.send(msg, zmq::send_flags::dontwait);
                 } break;
                 default:
@@ -113,6 +113,6 @@ void sim_loop(float &temperature, const bool heater1_on, const bool heater2_on) 
 #else
 
 void sim_setup() {};
-void sim_loop(float &temperature, const bool heater1_on, const bool heater2_on) {};
+void sim_loop(SimState &state) {};
 
 #endif // SIMGUI

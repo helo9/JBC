@@ -70,6 +70,7 @@ class Connector:
     def write_temperature(self, temperature: float):
         msg = struct.pack("!cci", b"T", b"W", int(temperature))
         self.socket.send(msg)
+        self.socket.recv()
 
     def read_heaters(self):   
         msg = struct.pack("!cc", b"A", b"R")

@@ -5,27 +5,21 @@
 
 using namespace std::chrono;
 
-struct SimState {
-    float temperature = 0.0f;
-    bool heater1_on = false;
-    bool heater2_on = false;
-};
-
 SimState _state = {};
 
-float get_temperature_celsius() {
+float board::get_temperature_celsius() {
     return _state.temperature;
 }
 
-void set_heater1(bool on) {
+void board::set_heater1(bool on) {
     _state.heater1_on = on;
 }
 
-void set_heater2(bool on) {
+void board::set_heater2(bool on) {
     _state.heater2_on = on;
 }
 
-unsigned long millis() {
+unsigned long board::millis() {
     static const auto start = system_clock::now();
 
     const auto now = system_clock::now();
@@ -35,21 +29,13 @@ unsigned long millis() {
     return time_difference.count();
 }
 
-void print(const char str[]) {
+void board::print(const char str[]) {
     printf(str);
 }
 
-const BoardAPI board_api = {
-    get_temperature_celsius,
-    set_heater1,
-    set_heater2,
-    millis,
-    print
-};
-
-void board_setup() {
+void board::setup() {
     millis();
-};
+}
 
 // Forward declared Arduino main functions
 void setup();
@@ -64,7 +50,7 @@ int main() {
     
 
     while (true) {
-        sim_loop(_state.temperature, _state.heater1_on, _state.heater2_on);
+        sim_loop(_state);
         loop();
     }
     
