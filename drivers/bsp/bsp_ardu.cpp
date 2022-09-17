@@ -28,6 +28,14 @@ void board::print(const char str[]) {
     Serial.print(str);
 }
 
+int board::serial_available() {
+    return Serial.available();
+}
+
+char board::serial_read() {
+    return Serial.read();
+}
+
 unsigned long board::millis() {
     return millis();
 }

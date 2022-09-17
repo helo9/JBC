@@ -37,7 +37,7 @@ static zmq::message_t build_value_reply (int value) {
     raw_data[4] = value & 0xFF;
     raw_data[3] = ( value >> 8 ) & 0xFF;
     raw_data[2] = ( value >> 16 ) & 0xFF;
-    raw_data[1] = (value >> 24 ) & 0xFF;
+    raw_data[1] = ( value >> 24 ) & 0xFF;
 
     return msg;
 }

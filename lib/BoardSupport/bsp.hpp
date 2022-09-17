@@ -10,6 +10,9 @@ void set_heater1(bool on);
 void set_heater2(bool on);
 void print(const char str[]);
 
+int serial_available ();
+char serial_read ();
+
 unsigned long millis();
 
 }

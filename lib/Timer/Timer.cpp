@@ -15,7 +15,7 @@ void Timer::start(const millis_t now_ms) {
 
 void Timer::update(const millis_t now_ms) {
 
-    const bool timer_overflow = now_ms < _last_now_ms;
+    const bool timer_overflow = false; //now_ms < _last_now_ms;
     _last_now_ms = now_ms;
 
     const bool timer_expired = [&]() {

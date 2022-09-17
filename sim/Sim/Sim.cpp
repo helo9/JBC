@@ -19,6 +19,14 @@ void board::set_heater2(bool on) {
     _state.heater2_on = on;
 }
 
+int board::serial_available() {
+    return 0;
+}
+
+char board::serial_read() {
+    return '\0';
+}
+
 unsigned long board::millis() {
     static const auto start = system_clock::now();
 
