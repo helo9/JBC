@@ -1,8 +1,8 @@
 #include <bsp.hpp>
 #include <Arduino.h>
 
-constexpr int heater1_pin = 13;
-constexpr int heater2_pin = 4;
+constexpr int heater1_pin = 4;
+constexpr int heater2_pin = 3;
 constexpr int measurement_pin = A0;
 constexpr float vt_factor = 1.83;
 constexpr float offset = -24.4;
