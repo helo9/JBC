@@ -18,7 +18,7 @@ class Timer {
 
 public:
 
-    Timer(millis_t interval_ms);
+    explicit Timer(millis_t interval_ms);
 
     void start(millis_t now_ms);
 
