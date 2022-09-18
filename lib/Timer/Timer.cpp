@@ -1,86 +1,43 @@
 #include "Timer.hpp"
-#include <stdio.h>
+#include <assert.h>
 
-Timer::Timer(millis_t interval_ms)
-    : _target_interval_ms(interval_ms) {};
+Timer *Timer::_all_timers[] = {nullptr};
+size_t Timer::_timer_count = 0;
 
-void Timer::start(const millis_t now_ms) {
-    _state = WAITING;
-
-    _last_now_ms = now_ms;
-    _last_expired_ms = now_ms;
-
-    update(now_ms);
-}
-
-void Timer::update(const millis_t now_ms) {
-
-    const bool timer_overflow = now_ms < _last_now_ms;
-    _last_now_ms = now_ms;
-
-    const bool timer_expired = [&]() {
-        if (_state == WAITING_OVERFLOW || timer_overflow) {
-            const millis_t passed_ms = max_millis_t - _last_expired_ms + now_ms;
-            return passed_ms > _target_interval_ms;
-        } else if (_state == WAITING) {
-            return now_ms > (_last_expired_ms + _target_interval_ms);
-        } else {
-            return true;
-        }
-    } ();
+Timer::Timer(QueueTimerEventFunction fun)
+    : _queue_event(fun) {
     
-    switch (_state) {
-    case (NOT_STARTED):
-        break;
-    case (WAITING): {
-            if (timer_expired) {
-                _last_expired_ms = now_ms;
-                _state = EXPIRED;
-            } else if (timer_overflow) {
-                _state = WAITING_OVERFLOW;
-            } else {
-                // nothing relevant happend, stay here
-            }
-        } break;
-    case (WAITING_OVERFLOW): {
-            if (timer_expired) {
-                _last_expired_ms = now_ms;
-                _state = EXPIRED;
-            }
-        } break;
-    case (EXPIRED): {
-            if (timer_overflow) {
-                _state = EXPIRED_OVERFLOW;
-            } else {
-                // nothing relevant happend, stay here
-            }
-        } break;
-    case (EXPIRED_OVERFLOW):
-        // we only leave this state with reset
-        break;
+    assert(_timer_count < max_timer_instances);
+    
+    _all_timers[_timer_count] = this;
+    _timer_count++;
+}
+
+void Timer::onSysTick() {
+    for (size_t i=0; i<_timer_count; i++) {
+        _all_timers[i]->_onSysTick();
     }
 }
 
-void Timer::reset_expired() {
-    switch (_state) {
-    case (EXPIRED):
-        _state = WAITING;
-        break;
-    case (EXPIRED_OVERFLOW):
-        _state = WAITING_OVERFLOW;
-        break;
-    default:
-        // nothing to reset..
-        break;
-    }
+void Timer::start(const millis_t delay, const bool periodic) {
+    _count = 1000;
+    _reset_count = periodic ? delay : 0U;
 }
 
-bool Timer::is_expired() const {
-    switch (_state) {
-    case (EXPIRED):
-    case (EXPIRED_OVERFLOW):
-        return true;
-    default:
-        return false;
+void Timer::stop() {
+    _reset_count = 0;
+    _count = 0;
+}
+
+void Timer::_onSysTick() {
+    if (_count > 1) {
+        
+        _count--;
+
+    } else if (_count == 1) {
+        _queue_event();
+
+        _count = (_reset_count > 0) ? _reset_count : 0;
     }
+
 }
