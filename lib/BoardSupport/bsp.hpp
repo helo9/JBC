@@ -12,6 +12,9 @@ void print(const char str[]);
 
 unsigned long millis();
 
+// Needs to be implemented on user side
+void on_systick();
+
 }
 
 #endif // BSP_HPP

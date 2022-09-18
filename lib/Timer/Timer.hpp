@@ -1,39 +1,36 @@
 #ifndef TIMER_HPP
 #define TIMER_HPP
 
-typedef unsigned long millis_t;
-static constexpr millis_t max_millis_t = 4294967295;
+#include <stddef.h>
 
-typedef millis_t (*get_millis_fun)();
+typedef unsigned long millis_t;
+
+constexpr size_t max_timer_instances = 10;
+
+typedef void (*QueueTimerEventFunction)();
 
 class Timer {
 
-    enum TimerStates {
-        NOT_STARTED,
-        WAITING,
-        WAITING_OVERFLOW,
-        EXPIRED,
-        EXPIRED_OVERFLOW
-    };
-
 public:
 
-    explicit Timer(millis_t interval_ms);
+    static void onSysTick();
 
-    void start(millis_t now_ms);
+    explicit Timer(QueueTimerEventFunction fun);
 
-    void update(millis_t now_ms);
-    void reset_expired();
+    void start(millis_t delay, bool periodic=true);
 
-    bool is_expired() const;
+    void stop();
 
 private:
 
-    const millis_t _target_interval_ms;
-    TimerStates _state;
-    millis_t _last_now_ms;
-    millis_t _last_expired_ms;
+    void _onSysTick();
 
+    static Timer *_all_timers[10];
+    static size_t _timer_count;
+
+    QueueTimerEventFunction _queue_event;
+    volatile millis_t _count = 0UL;
+    millis_t _reset_count = 0UL;
 };
 
 #endif // TIMER_HPP
