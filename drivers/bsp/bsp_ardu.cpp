@@ -7,8 +7,16 @@ constexpr int measurement_pin = A0;
 constexpr float vt_factor = 1.83;
 constexpr float offset = -24.4;
 
+static void enable_systick_isr() {
+    noInterrupts();
+    OCR0A = 0xAF;
+    TIMSK0 |= _BV(OCIE0A);
+    interrupts();
+}
 
 void board::setup() {
+    enable_systick_isr();
+
     pinMode(heater1_pin, OUTPUT);
     pinMode(heater2_pin, OUTPUT);
 
@@ -40,3 +48,8 @@ void board::print(const char str[]) {
 unsigned long board::millis() {
     return ::millis();
 }
+
+SIGNAL(TIMER0_COMPA_vect) 
+{
+    board::on_systick();
+} 

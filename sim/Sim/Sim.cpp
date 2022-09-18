@@ -1,4 +1,4 @@
-#include "Sim.hpp"
+#include "SimBsp.hpp"
 #include <chrono>
 #include <map>
 #include <stdio.h>
@@ -48,8 +48,8 @@ int main() {
     sim_setup();
     setup();
     
-
     while (true) {
+        board::on_systick();
         sim_loop(_state);
         loop();
     }
