@@ -34,16 +34,20 @@ void test_MiniRingBuffer() {
 }
 
 void test_putget() {
+    // Given: a ring buffer of ints with capacity 15
     RingBuffer<int, 15> ringbuffer;
 
+    // When: the following is done twice
     for (size_t i=0; i<2; i++) {
         size_t counter = 0U;
 
+        // When: the row of numbers 0, 1, 2, ..,14 is stored
         while(ringbuffer.put(counter++));
 
         int tmp;
         counter = 0U;
         while (ringbuffer.get(&tmp)) {
+            // Then: the reader should also get 0, 1, 2, ..,14
             TEST_ASSERT_EQUAL(counter, tmp);
             counter++;
         }
@@ -51,22 +55,24 @@ void test_putget() {
 }
 
 void test_overwrite() {
+    // Given: a Ringbuffer with `ringbuffer_size`
     static constexpr size_t ringbuffer_size = 5;
     static constexpr int dummy_value = 2, 
         dummy_overwrite_value = 4;
     
     RingBuffer<int, ringbuffer_size> ringbuffer;
 
-    for (size_t i=0; i<ringbuffer_size; i++) {
-        ringbuffer.put(dummy_value);
-    }
-
+    // When: the Ringbuffer is filled with dummy values ...
+    while(ringbuffer.put(dummy_value));
+    
+    // which are all overwritten by dummy_overwrite values
     for (size_t i=0; i<ringbuffer_size; i++) {
         ringbuffer.force_put(dummy_overwrite_value);
     }
 
     int tmp;
     while (ringbuffer.get(&tmp)) {
+        // Then: we should only read overwrite values
         TEST_ASSERT_EQUAL(dummy_overwrite_value, tmp);
         break;
     }
