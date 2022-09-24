@@ -49,7 +49,7 @@ int main() {
     setup();
     
     while (true) {
-        board::on_systick();
+        board_evt_handler::on_systick();
         sim_loop(_state);
         loop();
     }

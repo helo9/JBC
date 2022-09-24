@@ -4,8 +4,10 @@
 #else
     #include <SimBsp.hpp>
 #endif
+#include <DebounceFilter.hpp>
 #include <SwitchingRegulator.hpp>
 #include <Timer.hpp>
+#include <stdio.h>
 
 SwitchingRegulator regulator_heater1(82, 80);
 SwitchingRegulator regulator_heater2(80, 75);
@@ -47,6 +49,13 @@ void loop(void) {
     }
 }
 
-void board::on_systick() {
+void board_evt_handler::on_systick() {
     Timer::onSysTick();
+}
+
+void board_evt_handler::on_button_event(board_evt_handler::Button btn, board_evt_handler::ButtonEvent evt) {
+    char msg[50] = {};
+    snprintf(msg, 50, "%d %d\n", 
+        static_cast<int>(btn), static_cast<int>(evt));
+    board::print(msg);
 }
