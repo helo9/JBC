@@ -12,8 +12,26 @@ void print(const char str[]);
 
 unsigned long millis();
 
-// Needs to be implemented on user side
+}
+
+// Handlers to be implemented on application side
+namespace board_evt_handler {
+
+enum Button {
+    Up,
+    Down,
+    Next,
+    _end_ // only to mark end, write nothing behind
+};
+
+enum ButtonEvent {
+    Released,
+    Pressed
+};
+
 void on_systick();
+
+void on_button_event(Button button, ButtonEvent evt);
 
 }
 

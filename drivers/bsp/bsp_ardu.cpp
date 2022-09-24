@@ -1,11 +1,20 @@
+#include <DebounceFilter.hpp>
 #include <bsp.hpp>
 #include <Arduino.h>
 
+constexpr int button_pins[] = {5, 6, 7};
+constexpr int button_debounce_delay_ms = 50;
 constexpr int heater1_pin = 4;
 constexpr int heater2_pin = 3;
 constexpr int measurement_pin = A0;
 constexpr float vt_factor = 1.83;
 constexpr float offset = -24.4;
+
+DebounceFilter _button_filters[] = {
+    DebounceFilter(button_debounce_delay_ms),
+    DebounceFilter(button_debounce_delay_ms),
+    DebounceFilter(button_debounce_delay_ms),
+};
 
 static void enable_systick_isr() {
     noInterrupts();
@@ -19,6 +28,10 @@ void board::setup() {
 
     pinMode(heater1_pin, OUTPUT);
     pinMode(heater2_pin, OUTPUT);
+
+    for (int button_no=0; button_no<board_evt_handler::Button::_end_; button_no++) {
+        pinMode(button_pins[button_no], INPUT_PULLUP);
+    }
 
     Serial.begin(115200);
 }
@@ -51,5 +64,24 @@ unsigned long board::millis() {
 
 SIGNAL(TIMER0_COMPA_vect) 
 {
-    board::on_systick();
+    for (int button_no=0; button_no<board_evt_handler::Button::_end_; button_no++) {
+        const bool val = static_cast<bool>(digitalRead(button_pins[button_no]));
+        const auto transition = _button_filters[button_no].update(val);
+
+        const auto btn= static_cast<board_evt_handler::Button>(button_no);
+
+        switch (transition) {
+        case (DebounceFilter::ValueTransition::transition_up):
+            board_evt_handler::on_button_event(btn, board_evt_handler::ButtonEvent::Released);
+            break;
+        case (DebounceFilter::ValueTransition::transition_down):
+            board_evt_handler::on_button_event(btn, board_evt_handler::ButtonEvent::Pressed);
+            break;
+        default:
+            // not of interest
+            break;
+        }
+    }
+
+    board_evt_handler::on_systick();
 } 
