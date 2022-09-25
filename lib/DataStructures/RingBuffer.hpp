@@ -66,8 +66,8 @@ private:
 
     element_type _buffer[N+1] = {};
 
-    size_t _write_index = 0;
-    size_t _read_index = 0;
+    volatile size_t _write_index = 0;
+    volatile size_t _read_index = 0;
 
 };
 
