@@ -3,15 +3,12 @@
 
 #include <stdint.h>
 
-enum class EventTypes {
-    timer,
-    button
-};
-
-struct Event {
-    EventTypes type;
-    uint8_t data;
-    uint8_t data2;
+enum class ApplicationEvent {
+    regulation_pending,
+    menu_up,
+    menu_down,
+    menu_next,
+    update_display
 };
 
 #endif // EVENTS_HPP

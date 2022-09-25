@@ -14,49 +14,64 @@
 
 constexpr size_t event_queue_size = 20;
 
-void on_timer_event();
+void on_regulation_pending();
+void run_regulation();
+void on_display_update_required();
+void update_display();
 
 SwitchingRegulator regulator_heater1(82, 80);
 SwitchingRegulator regulator_heater2(80, 75);
 
-Timer timer(on_timer_event);
+Timer regulation_timer(on_regulation_pending);
+Timer display_timer(on_display_update_required);
 
-RingBuffer<Event, event_queue_size> event_queue;
+RingBuffer<ApplicationEvent, event_queue_size> event_queue;
 
 void setup(void) {
 
     board::setup();
 
-    timer.start(250, true);
+    regulation_timer.start(250, true);
+    display_timer.start(400, true);
 }
 
 void loop(void) {
 
     while(event_queue.count_free() == event_queue_size);
     
-    Event current_event;
+    ApplicationEvent current_event;
     if (!event_queue.get(&current_event)) {
         assert(0);
     }
 
-    switch (current_event.type) {
-        case (EventTypes::timer): 
+    switch (current_event) {
+        case (ApplicationEvent::regulation_pending): 
         {
-            const float temperature = board::get_temperature_celsius();
-            
-            const bool heater1_on = regulator_heater1.calc_new_command(temperature);
-            board::set_heater1(heater1_on);
-
-            const bool heater2_on = regulator_heater2.calc_new_command(temperature);
-            board::set_heater2(heater2_on);
-            
+            run_regulation();
             break;
         }
-        case (EventTypes::button): 
+        case (ApplicationEvent::menu_up): 
         {
-            board::print("Irgendwas mit Button :)\n");
+            board::print("Menu up :)\n");
             break;
         }
+        case (ApplicationEvent::menu_down):
+        {
+            board::print("Menu down :)\n");
+            break;
+        }
+        case (ApplicationEvent::menu_next):
+        {
+            board::print("Menu next :)\n");
+            break;
+        }
+        case (ApplicationEvent::update_display):
+        {
+            update_display();
+            break;
+        }
+        default:
+            assert(0);
     }
 }
 
@@ -65,18 +80,48 @@ void board_evt_handler::on_systick() {
 }
 
 void board_evt_handler::on_button_event(board_evt_handler::Button btn, board_evt_handler::ButtonEvent evt) {
-    const uint8_t button_no = static_cast<uint8_t>(btn);
-    const uint8_t button_evt = static_cast<uint8_t>(evt);
 
-    event_queue.put(Event {
-        EventTypes::button,
-        button_no,
-        button_evt
-    });
+    if (evt == board_evt_handler::ButtonEvent::Released) {
+        return;
+    }
+
+    switch (btn) {
+    case (board_evt_handler::Button::Down): {
+            event_queue.put(ApplicationEvent::menu_down);
+            break;
+        }
+    case (board_evt_handler::Button::Next): {
+            event_queue.put(ApplicationEvent::menu_up);
+            break;
+        }
+    case (board_evt_handler::Button::Up): {
+            event_queue.put(ApplicationEvent::menu_next);
+            break;
+        }
+    default:
+        assert(0);
+    }
 }
 
-void on_timer_event() {
-    event_queue.put(Event {
-        EventTypes::timer, 0, 0
-    });
+void on_regulation_pending() {
+    event_queue.put(ApplicationEvent::regulation_pending);
+}
+
+void run_regulation() {
+    const auto temperature = board::get_temperature_celsius();
+    
+    const bool heater1_on = regulator_heater1.calc_new_command(temperature);
+    board::set_heater1(heater1_on);
+
+    const bool heater2_on = regulator_heater2.calc_new_command(temperature);
+    board::set_heater2(heater2_on);
+
+}
+
+void on_display_update_required() {
+    event_queue.put(ApplicationEvent::update_display);
+}
+
+void update_display() {
+    board::print("\033[2JUpdate Display\n");
 }
