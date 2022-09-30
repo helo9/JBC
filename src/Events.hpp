@@ -8,7 +8,8 @@ enum class ApplicationEvent {
     menu_up,
     menu_down,
     menu_next,
-    update_display
+    update_display,
+    check_config
 };
 
 #endif // EVENTS_HPP

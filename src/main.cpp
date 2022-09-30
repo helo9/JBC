@@ -1,29 +1,27 @@
+#include "Menu.hpp"
+#include "Regulation.hpp"
+#include <DebounceFilter.hpp>
+#include <RingBuffer.hpp>
+#include <Timer.hpp>
+#include <Events.hpp>
 #ifdef ARDUINO
     #include <bsp_ardu.hpp>
     #include <Arduino.h>
 #else
     #include <SimBsp.hpp>
 #endif
-#include <DebounceFilter.hpp>
-#include <SwitchingRegulator.hpp>
-#include <RingBuffer.hpp>
-#include <Timer.hpp>
-#include <Events.hpp>
-#include <stdio.h>
 #include <assert.h>
 
 constexpr size_t event_queue_size = 20;
 
 void on_regulation_pending();
-void run_regulation();
-void on_display_update_required();
-void update_display();
-
-SwitchingRegulator regulator_heater1(82, 80);
-SwitchingRegulator regulator_heater2(80, 75);
-
 Timer regulation_timer(on_regulation_pending);
+
+void on_display_update_required();
 Timer display_timer(on_display_update_required);
+
+void on_configuration_check_pending();
+Timer configuration_check_timer(on_configuration_check_pending);
 
 RingBuffer<ApplicationEvent, event_queue_size> event_queue;
 
@@ -31,11 +29,14 @@ void setup(void) {
 
     board::setup();
 
-    regulation_timer.start(250, true);
-    display_timer.start(400, true);
+    regulation_timer.start(1500, true);
+    display_timer.start(500, true);
+    configuration_check_timer.start(2500, true);
 }
 
 void loop(void) {
+
+    static float temperature = 23.0f;
 
     while(event_queue.count_free() == event_queue_size);
     
@@ -47,27 +48,48 @@ void loop(void) {
     switch (current_event) {
         case (ApplicationEvent::regulation_pending): 
         {
-            run_regulation();
+            temperature = board::get_temperature_celsius();
+
+            const auto cmd = regulation::run_regulation(temperature);
+
+            board::set_heater1(cmd.heater1_on);
+            board::set_heater2(cmd.heater2_on);
+
             break;
         }
         case (ApplicationEvent::menu_up): 
         {
+            menu::on_button_up();
             board::print("Menu up :)\n");
             break;
         }
         case (ApplicationEvent::menu_down):
         {
+            menu::on_button_down();
             board::print("Menu down :)\n");
             break;
         }
         case (ApplicationEvent::menu_next):
         {
+            menu::on_button_next();
             board::print("Menu next :)\n");
             break;
         }
         case (ApplicationEvent::update_display):
         {
-            update_display();
+            char str[16] = "";
+
+            menu::generate_string(str, 16, temperature);
+
+            board::print(str);
+
+            break;
+        }
+        case (ApplicationEvent::check_config):
+        {
+            if(menu::has_config_changed()) {
+                board::print("Config has changed!\n");
+            }
             break;
         }
         default:
@@ -107,21 +129,10 @@ void on_regulation_pending() {
     event_queue.put(ApplicationEvent::regulation_pending);
 }
 
-void run_regulation() {
-    const auto temperature = board::get_temperature_celsius();
-    
-    const bool heater1_on = regulator_heater1.calc_new_command(temperature);
-    board::set_heater1(heater1_on);
-
-    const bool heater2_on = regulator_heater2.calc_new_command(temperature);
-    board::set_heater2(heater2_on);
-
-}
-
 void on_display_update_required() {
     event_queue.put(ApplicationEvent::update_display);
 }
 
-void update_display() {
-    board::print("\033[2JUpdate Display\n");
+void on_configuration_check_pending() {
+    event_queue.put(ApplicationEvent::check_config);
 }
