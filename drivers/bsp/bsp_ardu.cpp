@@ -2,10 +2,10 @@
 #include <bsp.hpp>
 #include <Arduino.h>
 
-constexpr int button_pins[] = {5, 6, 7};
+constexpr int button_pins[] = {6, 7, 8};
 constexpr int button_debounce_delay_ms = 50;
-constexpr int heater1_pin = 4;
-constexpr int heater2_pin = 3;
+constexpr int heater1_pin = 9;
+constexpr int heater2_pin = 10;
 constexpr int measurement_pin = A0;
 constexpr float vt_factor = 1.83;
 constexpr float offset = -24.4;
