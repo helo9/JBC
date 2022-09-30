@@ -8,9 +8,17 @@ public:
 
     bool calc_new_command(float measurement);
 
+    inline void set_limit_up(float limit) {
+        _limit_up = limit;
+    };
+
+    inline void set_limit_down(float limit) {
+        _limit_down = limit;
+    };
+
 private:
-    const float _limit_up;
-    const float _limit_down;
+    float _limit_up;
+    float _limit_down;
     bool _was_above_limit = false;
 };
 

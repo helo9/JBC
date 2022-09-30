@@ -26,6 +26,14 @@ bool menu::has_config_changed() {
     return _conf_has_changed;
 }
 
+const int *menu::get_configuration() {
+    return _conf_temps;
+}
+
+void menu::reset_change_flag() {
+    _conf_has_changed = false;
+}
+
 void menu::generate_string(char *str, size_t len, float temperature) {
 
     if (_current_page == 0) {
@@ -39,7 +47,12 @@ void menu::generate_string(char *str, size_t len, float temperature) {
 }
 
 void menu::on_button_up() {
+    if (_current_page == 0) {
+        return;
+    }
+
     get_selected_configuration_temperature()++;
+    
     if (!_conf_has_changed) {
         _conf_has_changed = true;
     }
@@ -54,6 +67,10 @@ void menu::on_button_next() {
 }
 
 void menu::on_button_down() {
+    if (_current_page == 0) {
+        return;
+    }
+    
     get_selected_configuration_temperature()--;
 
     if (!_conf_has_changed) {

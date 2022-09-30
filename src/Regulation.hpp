@@ -11,6 +11,7 @@ struct HeaterCommand {
 };
 
 HeaterCommand run_regulation(float temperature);
+void update_parameters(const int *config_temperatures);
 
 }
 
