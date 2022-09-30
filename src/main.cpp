@@ -88,6 +88,8 @@ void loop(void) {
         case (ApplicationEvent::check_config):
         {
             if(menu::has_config_changed()) {
+                regulation::update_parameters(menu::get_configuration());
+                menu::reset_change_flag();
                 board::print("Config has changed!\n");
             }
             break;

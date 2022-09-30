@@ -10,3 +10,11 @@ regulation::HeaterCommand regulation::run_regulation(const float temperature) {
 
     return regulation::HeaterCommand {heater1_on, heater2_on};
 }
+
+void regulation::update_parameters(const int *config_temperatures) {
+    regulator_heater1.set_limit_up(static_cast<float>(config_temperatures[0]));
+    regulator_heater1.set_limit_down(static_cast<float>(config_temperatures[1]));
+
+    regulator_heater2.set_limit_up(static_cast<float>(config_temperatures[3]));
+    regulator_heater2.set_limit_down(static_cast<float>(config_temperatures[4]));
+}
