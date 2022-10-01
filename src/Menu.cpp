@@ -1,6 +1,7 @@
 #include "Menu.hpp"
 #include <stdio.h>
 #include <string.h>
+#include <PersistentConfiguration.hpp>
 
 #define MENU_PAGE_INFO 0
 
@@ -11,15 +12,17 @@ static const char _conf_temp_names[4][8] = {
     "H2-DN: "
 };
 
-int _conf_temps[4] = {
-    82, 80, 80, 75
-};
+config::temperatures temps;
 
 bool _conf_has_changed = false;
 int _current_page = 0;
 
+void menu::setup(){
+    config::load(temps);
+}
+
 static int &get_selected_configuration_temperature() {
-    return _conf_temps[_current_page-1];
+    return ((int*)(&temps))[_current_page-1];
 }
 
 bool menu::has_config_changed() {
@@ -27,7 +30,7 @@ bool menu::has_config_changed() {
 }
 
 const int *menu::get_configuration() {
-    return _conf_temps;
+    return (int*)(&temps);
 }
 
 void menu::reset_change_flag() {

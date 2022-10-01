@@ -14,6 +14,8 @@ namespace menu {
     void on_button_up();
     void on_button_next();
     void on_button_down();
+
+    void setup();
 };
 
 #endif // MENU_HPP

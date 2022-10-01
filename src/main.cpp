@@ -1,9 +1,11 @@
 #include "Menu.hpp"
 #include "Regulation.hpp"
+#include "PersistentConfiguration.hpp"
 #include <DebounceFilter.hpp>
 #include <RingBuffer.hpp>
 #include <Timer.hpp>
 #include <Events.hpp>
+
 #ifdef ARDUINO
     #include <bsp_ardu.hpp>
     #include <Arduino.h>
@@ -28,6 +30,8 @@ RingBuffer<ApplicationEvent, event_queue_size> event_queue;
 void setup(void) {
 
     board::setup();
+
+    menu::setup();
 
     regulation_timer.start(1500, true);
     display_timer.start(500, true);
