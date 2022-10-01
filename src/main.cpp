@@ -33,8 +33,8 @@ void setup(void) {
 
     menu::setup();
 
-    regulation_timer.start(1500, true);
-    display_timer.start(250, true);
+    regulation_timer.start(500, true);
+    display_timer.start(200, true);
     configuration_check_timer.start(2500, true);
 }
 
