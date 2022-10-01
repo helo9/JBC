@@ -8,7 +8,7 @@
 static const char _conf_temp_names[4][8] = {
     "H1-UP: ",
     "H1-DN: ",
-    "H2-up: ",
+    "H2-UP: ",
     "H2-DN: "
 };
 
@@ -42,10 +42,7 @@ void menu::generate_string(char *str, size_t len, float temperature) {
     if (_current_page == 0) {
         snprintf(str, len, "T: %3d", static_cast<int>(temperature));
     } else {
-        memcpy((void*)str, (const void*)(_conf_temp_names[_current_page-1]), 7);
-        if (len > 5) {
-            snprintf(&str[6], len - 6, "%3d", get_selected_configuration_temperature());
-        }
+        snprintf(str, len, "%s %3d", _conf_temp_names[_current_page-1], get_selected_configuration_temperature());
     }
 }
 

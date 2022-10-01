@@ -34,7 +34,7 @@ void setup(void) {
     menu::setup();
 
     regulation_timer.start(1500, true);
-    display_timer.start(500, true);
+    display_timer.start(250, true);
     configuration_check_timer.start(2500, true);
 }
 
@@ -85,7 +85,7 @@ void loop(void) {
 
             menu::generate_string(str, 16, temperature);
 
-            board::lcd_write(str, 1);
+            board::lcd_write(str, 0);
 
             break;
         }
