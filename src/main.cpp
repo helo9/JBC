@@ -1,6 +1,7 @@
 #include "Menu.hpp"
 #include "Regulation.hpp"
 #include "PersistentConfiguration.hpp"
+#include "HoldTimer.hpp"
 #include <DebounceFilter.hpp>
 #include <RingBuffer.hpp>
 #include <Timer.hpp>
@@ -59,6 +60,8 @@ void loop(void) {
             board::set_heater1(cmd.heater1_on);
             board::set_heater2(cmd.heater2_on);
 
+            holdtimer::update(temperature, board::millis());
+
             break;
         }
         case (ApplicationEvent::menu_up): 
@@ -86,6 +89,10 @@ void loop(void) {
             menu::generate_string(str, 16, temperature);
 
             board::lcd_write(str, 0);
+
+            holdtimer::create_status(str, 16, board::millis());
+
+            board::lcd_write(str, 1);
 
             break;
         }
