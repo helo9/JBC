@@ -81,7 +81,7 @@ void loop(void) {
 
             menu::generate_string(str, 16, temperature);
 
-            board::print(str);
+            board::lcd_write(str, 1);
 
             break;
         }

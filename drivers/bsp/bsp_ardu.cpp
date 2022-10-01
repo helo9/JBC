@@ -1,5 +1,6 @@
 #include <DebounceFilter.hpp>
 #include <bsp.hpp>
+#include <LiquidCrystal.h>
 #include <Arduino.h>
 
 constexpr int button_pins[] = {6, 7, 8};
@@ -9,12 +10,17 @@ constexpr int heater2_pin = 10;
 constexpr int measurement_pin = A0;
 constexpr float vt_factor = 1.83;
 constexpr float offset = -24.4;
+constexpr int lcd_rs_pin = 12, lcd_en_pin = 11, lcd_d4_pin = 5,
+    lcd_d5_pin = 4, lcd_d6_pin = 3, lcd_d7_pin=2;
+constexpr int lcd_num_rows = 2, lcd_num_cols = 16;
 
 DebounceFilter _button_filters[] = {
     DebounceFilter(button_debounce_delay_ms),
     DebounceFilter(button_debounce_delay_ms),
     DebounceFilter(button_debounce_delay_ms),
 };
+
+LiquidCrystal lcd(lcd_rs_pin, lcd_en_pin, lcd_d4_pin, lcd_d5_pin, lcd_d6_pin, lcd_d7_pin);
 
 static void enable_systick_isr() {
     noInterrupts();
@@ -34,6 +40,9 @@ void board::setup() {
     }
 
     Serial.begin(115200);
+
+    lcd.begin(lcd_num_cols, lcd_num_rows);
+    lcd.clear();
 }
 
 float board::get_temperature_celsius() {
@@ -56,6 +65,28 @@ void board::set_heater2(bool on) {
 void board::print(const char str[]) {
     Serial.print(str);
     Serial.flush();
+}
+
+void board::lcd_write(const char str[16], int row) {
+    static char last_str[2][16] = {};
+    int col=0;
+    while (col<16) {
+        if (str[col] != last_str[row][col]) {
+            last_str[row][col] = str[col];
+            if (str[col] == '\0') {
+                break;
+            } else {
+                lcd.setCursor(col, row);
+                lcd.write(str[col]);
+            }
+        }
+        col++;
+    }
+    while(col<16){
+        lcd.setCursor(col, row);
+        lcd.write(" ");
+        col++;
+    }
 }
 
 unsigned long board::millis() {

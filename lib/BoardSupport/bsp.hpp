@@ -9,6 +9,7 @@ float get_temperature_celsius();
 void set_heater1(bool on);
 void set_heater2(bool on);
 void print(const char str[]);
+void lcd_write(const char str[16], int row);
 
 unsigned long millis();
 
