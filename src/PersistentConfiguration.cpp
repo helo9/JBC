@@ -15,7 +15,7 @@ void config::load(config::temperatures &t) {
     t.low2=75;
   }
 }
-void config::store(const config::temperatures t) {
+void config::store(const config::temperatures &t) {
   uint8_t crcCalc = crc8((uint8_t*)&t, sizeof(t));
   memory_put(0, t);
   memory_put(sizeof(t), crcCalc);

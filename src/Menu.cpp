@@ -77,3 +77,7 @@ void menu::on_button_down() {
         _conf_has_changed = true;
     }
 }
+
+void menu::store_config() {
+    config::store(temps);
+}

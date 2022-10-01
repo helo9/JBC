@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 namespace menu {
+    void setup();
 
     bool has_config_changed();
     const int *get_configuration();
@@ -14,8 +15,8 @@ namespace menu {
     void on_button_up();
     void on_button_next();
     void on_button_down();
-
-    void setup();
+    
+    void store_config();
 };
 
 #endif // MENU_HPP

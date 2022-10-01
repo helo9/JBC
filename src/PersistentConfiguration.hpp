@@ -9,7 +9,7 @@ namespace config {
         int low2;
     };
     void load(temperatures &t);
-    void store(const temperatures t);
+    void store(const temperatures &t);
 }
 
 #endif // PERSISTENT_CONFIGURATION_HPP
