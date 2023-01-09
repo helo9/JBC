@@ -3,16 +3,23 @@
 #include <LiquidCrystal.h>
 #include <Arduino.h>
 
-constexpr int button_pins[] = {6, 7, 8};
-constexpr int button_debounce_delay_ms = 50;
+// Immersion heater pins, e.g. via Relais
 constexpr int heater1_pin = 9;
 constexpr int heater2_pin = 10;
+
+// PT-1000 configuration
 constexpr int measurement_pin = A0;
 constexpr float vt_factor = 1.83;
 constexpr float offset = -24.4;
+
+// LCD Configuration
 constexpr int lcd_rs_pin = 12, lcd_en_pin = 11, lcd_d4_pin = 5,
     lcd_d5_pin = 4, lcd_d6_pin = 3, lcd_d7_pin=2;
 constexpr int lcd_num_rows = 2, lcd_num_cols = 16;
+
+// Physical Buttons
+constexpr int button_pins[] = {6, 7, 8};
+constexpr int button_debounce_delay_ms = 50;
 
 DebounceFilter _button_filters[] = {
     DebounceFilter(button_debounce_delay_ms),
